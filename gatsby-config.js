@@ -3,7 +3,11 @@ const slashes = require("remove-trailing-slash")
 const wpUrl = slashes(config.wordPressUrl)
 
 module.exports = {
-  /* Your site config here */
+  siteMetadata: {
+    title: `wp login subscribe`,
+    description: `Kick off your next, great Gatsby project with this default starter. This barebones starter ships with the main Gatsby configuration files you might need.`,
+    author: `@gatsbyjs`,
+  },
   plugins: [
     "gatsby-plugin-theme-ui",
     {
