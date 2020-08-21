@@ -1,13 +1,61 @@
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
+import { useMutation } from "@apollo/react-hooks"
+import { gql } from "apollo-boost"
+
+const CREATE_USER = gql`
+  mutation registerUserMutation(
+    $username: String!
+    $id: String!
+    $email: String!
+    $firstName: String!
+    $lastName: String!
+    $password: String!
+  ) {
+    createUser(
+      input: {
+        clientMutationId: $id
+        username: $username
+        email: $email
+        firstName: $firstName
+        lastName: $lastName
+        password: $password
+      }
+    ) {
+      user {
+        username
+      }
+    }
+  }
+`
 
 const SignUp = () => {
   const [state, setState] = useState({})
   const { register, handleSubmit } = useForm()
 
-  const onSubmit = data => {
+  const [createUser] = useMutation(CREATE_USER, {
+    variables: {
+      id: uuidv4(),
+      username: state.username,
+      password: state.password,
+      firstName: state.firstName,
+      lastName: state.lastName,
+      email: state.email,
+    },
+  })
+
+  const [userData, setUserData] = useState()
+  const [error, setError] = useState()
+
+  const onSubmit = async data => {
     setState(data)
+    createUser()
+    try {
+      const { userData } = await createUser()
+    } catch (error) {
+      setError(error)
+    }
   }
   return (
     <div>
