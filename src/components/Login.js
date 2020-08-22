@@ -48,14 +48,12 @@ const Login = () => {
       password: state.password,
     },
   })
+  //put the data from the login in the state
   const [loginData, setLoginData] = useState()
-  console.log("login", loginData?.login)
-  useEffect(() => {
-    loginData &&
-      localStorage.setItem("loginData", JSON.stringify(loginData.login))
-  }, [loginData])
-
   const [error, setError] = useState()
+  console.log("loginData", loginData)
+
+  const [logguedIn, setLogguedIn] = useState()
 
   const [refreshTokenMutation] = useMutation(REFRESH_TOKEN, {
     variables: {
@@ -65,7 +63,34 @@ const Login = () => {
   })
 
   const [refreshedToken, setRefreshedToken] = useState()
-  // console.log("refreshed", refreshedToken)
+  console.log("refreshed", refreshedToken)
+
+  useEffect(() => {
+    if (loginData) {
+      localStorage.setItem("logguedIn", JSON.stringify(loginData.login))
+      const mutate = async () => {
+        refreshTokenMutation()
+        try {
+          const { data } = await refreshTokenMutation()
+          setRefreshedToken(data)
+          console.log("refreshed")
+        } catch (error) {
+          setError(error)
+        }
+      }
+      mutate()
+    }
+    // loginData && Cookies.set("loginData", JSON.stringify(loginData.login))
+  }, [loginData])
+
+  useEffect(() => {
+    if (refreshedToken) {
+      localStorage.setItem(
+        "authToken",
+        JSON.stringify(refreshedToken.refreshJwtAuthToken.authToken)
+      )
+    }
+  }, [refreshedToken])
 
   const onSubmit = async data => {
     setState(data)
