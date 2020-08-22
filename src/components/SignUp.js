@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 import { useMutation } from "@apollo/react-hooks"
 import { gql } from "apollo-boost"
 
-const CREATE_USER = gql`
+const REGISTER_USER = gql`
   mutation registerUserMutation(
     $username: String!
     $id: String!
@@ -13,7 +13,7 @@ const CREATE_USER = gql`
     $lastName: String!
     $password: String!
   ) {
-    createUser(
+    registerUser(
       input: {
         clientMutationId: $id
         username: $username
@@ -34,7 +34,7 @@ const SignUp = () => {
   const [state, setState] = useState({})
   const { register, handleSubmit } = useForm()
 
-  const [createUser] = useMutation(CREATE_USER, {
+  const [registerUser] = useMutation(REGISTER_USER, {
     variables: {
       id: uuidv4(),
       username: state.username,
@@ -50,9 +50,9 @@ const SignUp = () => {
 
   const onSubmit = async data => {
     setState(data)
-    createUser()
+    registerUser()
     try {
-      const { userData } = await createUser()
+      const { userData } = await registerUser()
     } catch (error) {
       setError(error)
     }
