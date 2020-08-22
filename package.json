@@ -28,6 +28,7 @@
     "gatsby-source-wordpress-experimental": "^1.3.6",
     "gatsby-transformer-sharp": "^2.5.13",
     "isomorphic-fetch": "^2.2.1",
+    "js-cookies": "^1.0.4",
     "netlify-cli": "^2.59.1",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",

@@ -1,8 +1,9 @@
-import React, { useState } from "react"
+import React, { useState, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
 import { useMutation } from "@apollo/react-hooks"
 import { gql } from "apollo-boost"
+import Cookies from "js-cookies"
 
 const LOGIN_USER = gql`
   mutation loginMutation($username: String!, $password: String!, $id: String!) {
@@ -48,7 +49,11 @@ const Login = () => {
     },
   })
   const [loginData, setLoginData] = useState()
-  console.log("login", loginData)
+  console.log("login", loginData?.login)
+  useEffect(() => {
+    loginData &&
+      localStorage.setItem("loginData", JSON.stringify(loginData.login))
+  }, [loginData])
 
   const [error, setError] = useState()
 
@@ -60,7 +65,7 @@ const Login = () => {
   })
 
   const [refreshedToken, setRefreshedToken] = useState()
-  console.log("refreshed", refreshedToken)
+  // console.log("refreshed", refreshedToken)
 
   const onSubmit = async data => {
     setState(data)
@@ -68,13 +73,6 @@ const Login = () => {
     try {
       const { data } = await sendLoginData()
       setLoginData(data)
-      refreshTokenMutation()
-      try {
-        const { data } = await refreshTokenMutation()
-        setRefreshedToken(data)
-      } catch (error) {
-        setError(error)
-      }
     } catch (error) {
       setError(error)
     }
