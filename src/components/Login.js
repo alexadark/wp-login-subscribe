@@ -10,10 +10,28 @@ const LOGIN_USER = gql`
       input: { clientMutationId: $id, username: $username, password: $password }
     ) {
       authToken
+      clientMutationId
+      refreshToken
       user {
         id
         name
+        firstName
+
+        # premiumUser {
+        #   premium
+        # }
       }
+    }
+  }
+`
+
+const REFRESH_TOKEN = gql`
+  mutation refreshToken($id: String!, $token: String!) {
+    refreshJwtAuthToken(
+      input: { clientMutationId: $id, jwtRefreshToken: $token }
+    ) {
+      authToken
+      clientMutationId
     }
   }
 `
@@ -30,8 +48,19 @@ const Login = () => {
     },
   })
   const [loginData, setLoginData] = useState()
+  console.log("login", loginData)
 
   const [error, setError] = useState()
+
+  const [refreshTokenMutation] = useMutation(REFRESH_TOKEN, {
+    variables: {
+      token: loginData && loginData.login.refreshToken,
+      id: loginData && loginData.login.clientMutationId,
+    },
+  })
+
+  const [refreshedToken, setRefreshedToken] = useState()
+  console.log("refreshed", refreshedToken)
 
   const onSubmit = async data => {
     setState(data)
@@ -39,6 +68,13 @@ const Login = () => {
     try {
       const { data } = await sendLoginData()
       setLoginData(data)
+      refreshTokenMutation()
+      try {
+        const { data } = await refreshTokenMutation()
+        setRefreshedToken(data)
+      } catch (error) {
+        setError(error)
+      }
     } catch (error) {
       setError(error)
     }
