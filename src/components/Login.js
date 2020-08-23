@@ -39,7 +39,7 @@ const REFRESH_TOKEN = gql`
 
 const Login = () => {
   const [state, setState] = useState({})
-  const { register, handleSubmit } = useForm()
+  const { register, handleSubmit, reset } = useForm()
 
   const [sendLoginData] = useMutation(LOGIN_USER, {
     variables: {
@@ -51,7 +51,6 @@ const Login = () => {
   //put the data from the login in the state
   const [loginData, setLoginData] = useState()
   const [error, setError] = useState()
-  console.log("loginData", loginData)
 
   const [logguedIn, setLogguedIn] = useState()
 
@@ -63,41 +62,64 @@ const Login = () => {
   })
 
   const [refreshedToken, setRefreshedToken] = useState()
-  console.log("refreshed", refreshedToken)
 
-  useEffect(() => {
-    if (loginData) {
-      localStorage.setItem("logguedIn", JSON.stringify(loginData.login))
-      const mutate = async () => {
-        refreshTokenMutation()
-        try {
-          const { data } = await refreshTokenMutation()
-          setRefreshedToken(data)
-          console.log("refreshed")
-        } catch (error) {
-          setError(error)
-        }
-      }
-      mutate()
+  // useEffect(() => {
+  //   if (loginData) {
+  //     localStorage.setItem("logguedIn", JSON.stringify(loginData.login))
+  //     const mutate = async () => {
+  //       refreshTokenMutation()
+  //       try {
+  //         const { data } = await refreshTokenMutation()
+  //         setRefreshedToken(data)
+  //         console.log("refreshed")
+  //       } catch (error) {
+  //         setError(error)
+  //       }
+  //     }
+  //     mutate()
+  //   }
+  //   // loginData && Cookies.set("loginData", JSON.stringify(loginData.login))
+  // }, [loginData])
+
+  // useEffect(() => {
+  //   if (refreshedToken) {
+  //     localStorage.setItem(
+  //       "authToken",
+  //       JSON.stringify(refreshedToken.refreshJwtAuthToken.authToken)
+  //     )
+  //   }
+  // }, [refreshedToken])
+
+  const refreshToken = async () => {
+    try {
+      const { data } = await refreshTokenMutation()
+      await setRefreshedToken(data)
+    } catch (error) {
+      setError(error)
     }
-    // loginData && Cookies.set("loginData", JSON.stringify(loginData.login))
-  }, [loginData])
+  }
 
-  useEffect(() => {
-    if (refreshedToken) {
-      localStorage.setItem(
-        "authToken",
-        JSON.stringify(refreshedToken.refreshJwtAuthToken.authToken)
-      )
-    }
-  }, [refreshedToken])
-
-  const onSubmit = async data => {
-    setState(data)
-    sendLoginData()
+  const onSubmit = async formData => {
+    console.log("// TEST 1- Submit! data: ", formData)
+    setState(formData)
+    console.log("// TEST 1 - state: ", state)
     try {
       const { data } = await sendLoginData()
-      setLoginData(data)
+      console.log("// TEST 1 - login Data: ", data)
+      await setLoginData(data)
+      localStorage.setItem("logguedIn", JSON.stringify(loginData.login))
+      try {
+        const { data } = await refreshTokenMutation()
+        await setRefreshedToken(data)
+        console.log("// TEST 1 - refreshed: ", refreshedToken)
+        localStorage.setItem(
+          "authToken",
+          JSON.stringify(refreshedToken.refreshJwtAuthToken.authToken)
+        )
+      } catch (error) {
+        setError(error)
+      }
+      reset()
     } catch (error) {
       setError(error)
     }
