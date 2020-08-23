@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react"
+import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
 import { useMutation } from "@apollo/react-hooks"
 import { gql } from "apollo-boost"
-import Cookies from "js-cookies"
+import { getLs, setLs } from "./utils"
 
-const LOGIN_USER = gql`
+const LOGIN = gql`
   mutation loginMutation($username: String!, $password: String!, $id: String!) {
     login(
       input: { clientMutationId: $id, username: $username, password: $password }
@@ -38,92 +38,52 @@ const REFRESH_TOKEN = gql`
 `
 
 const Login = () => {
-  const [state, setState] = useState({})
+  const [formState, setFormState] = useState({})
+  const { username, password } = formState
   const { register, handleSubmit, reset } = useForm()
 
-  const [sendLoginData] = useMutation(LOGIN_USER, {
+  const handleError = err => {
+    console.log("oh noooo something went wrong!!!! 💩")
+    console.log(err)
+  }
+
+  const [mutateLogin] = useMutation(LOGIN, {
     variables: {
       id: uuidv4(),
-      username: state.username,
-      password: state.password,
-    },
-  })
-  //put the data from the login in the state
-  const [loginData, setLoginData] = useState()
-  const [error, setError] = useState()
-
-  const [logguedIn, setLogguedIn] = useState()
-
-  const [refreshTokenMutation] = useMutation(REFRESH_TOKEN, {
-    variables: {
-      token: loginData && loginData.login.refreshToken,
-      id: loginData && loginData.login.clientMutationId,
+      username,
+      password,
     },
   })
 
-  const [refreshedToken, setRefreshedToken] = useState()
+  const [mutateRefreshToken] = useMutation(REFRESH_TOKEN)
 
-  // useEffect(() => {
-  //   if (loginData) {
-  //     localStorage.setItem("logguedIn", JSON.stringify(loginData.login))
-  //     const mutate = async () => {
-  //       refreshTokenMutation()
-  //       try {
-  //         const { data } = await refreshTokenMutation()
-  //         setRefreshedToken(data)
-  //         console.log("refreshed")
-  //       } catch (error) {
-  //         setError(error)
-  //       }
-  //     }
-  //     mutate()
-  //   }
-  //   // loginData && Cookies.set("loginData", JSON.stringify(loginData.login))
-  // }, [loginData])
+  const login = async () => {
+    const { data } = await mutateLogin()
+    setLs("logguedIn", data.login)
+  }
 
-  // useEffect(() => {
-  //   if (refreshedToken) {
-  //     localStorage.setItem(
-  //       "authToken",
-  //       JSON.stringify(refreshedToken.refreshJwtAuthToken.authToken)
-  //     )
-  //   }
-  // }, [refreshedToken])
-
-  const refreshToken = async () => {
-    try {
-      const { data } = await refreshTokenMutation()
-      await setRefreshedToken(data)
-    } catch (error) {
-      setError(error)
-    }
+  const refreshTokenFn = async (token, id) => {
+    const { data } = await mutateRefreshToken({
+      variables: {
+        token,
+        id,
+      },
+    })
+    localStorage.setItem(
+      "authToken",
+      JSON.stringify(data.refreshJwtAuthToken.authToken)
+    )
   }
 
   const onSubmit = async formData => {
-    console.log("// TEST 1- Submit! data: ", formData)
-    setState(formData)
-    console.log("// TEST 1 - state: ", state)
-    try {
-      const { data } = await sendLoginData()
-      console.log("// TEST 1 - login Data: ", data)
-      await setLoginData(data)
-      localStorage.setItem("logguedIn", JSON.stringify(loginData.login))
-      try {
-        const { data } = await refreshTokenMutation()
-        await setRefreshedToken(data)
-        console.log("// TEST 1 - refreshed: ", refreshedToken)
-        localStorage.setItem(
-          "authToken",
-          JSON.stringify(refreshedToken.refreshJwtAuthToken.authToken)
-        )
-      } catch (error) {
-        setError(error)
-      }
-      reset()
-    } catch (error) {
-      setError(error)
-    }
+    setFormState(formData)
+    await login().catch(handleError)
+    const logguedIn = getLs("logguedIn")
+    const { refreshToken, clientMutationId } = logguedIn
+    refreshTokenFn(refreshToken, clientMutationId).catch(handleError)
+    reset()
   }
+
   return (
     <div>
       <h2>Login</h2>
@@ -147,4 +107,5 @@ const Login = () => {
     </div>
   )
 }
+
 export default Login
