@@ -38,10 +38,33 @@ const REFRESH_TOKEN = gql`
 
 const Login2 = () => {
   const [formState, setFormState] = useState({})
+  const { username, password } = formState
   const { register, handleSubmit, reset } = useForm()
+
+  const handleError = err => {
+    console.log("oh noooo")
+    console.log(err)
+  }
+
+  const [mutateLogin, { data, errors }] = useMutation(LOGIN, {
+    variables: {
+      id: uuidv4(),
+      username,
+      password,
+    },
+  })
+
+  const login = async () => {
+    const { data } = await mutateLogin()
+    console.log("loginMutation", data)
+    localStorage.setItem("logguedIn", JSON.stringify(data.login))
+  }
 
   const onSubmit = formData => {
     setFormState(formData)
+    console.log("formState", formState)
+    login().catch(handleError)
+
     reset()
   }
 
