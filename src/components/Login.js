@@ -69,10 +69,8 @@ const Login = () => {
         id,
       },
     })
-    localStorage.setItem(
-      "authToken",
-      JSON.stringify(data.refreshJwtAuthToken.authToken)
-    )
+
+    setLs("authToken", data.refreshJwtAuthToken.authToken)
   }
 
   const onSubmit = async formData => {
