@@ -3,7 +3,7 @@ import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
 import { useMutation } from "@apollo/react-hooks"
 import { gql } from "apollo-boost"
-import { getLs, setLs } from "./utils"
+import ls from "local-storage"
 
 const LOGIN = gql`
   mutation loginMutation($username: String!, $password: String!, $id: String!) {
@@ -17,7 +17,7 @@ const LOGIN = gql`
         id
         name
         firstName
-
+        jwtAuthExpiration
         # premiumUser {
         #   premium
         # }
@@ -59,7 +59,14 @@ const Login = () => {
 
   const login = async () => {
     const { data } = await mutateLogin()
-    setLs("logguedIn", data.login)
+    console.log("data", data)
+    const {
+      login: { authToken, clientMutationId, refreshToken, user },
+    } = data
+    ls.set("authToken", authToken)
+    ls.set("mutationId", clientMutationId)
+    ls.set("refreshToken", refreshToken)
+    ls.set("user", user)
   }
 
   const refreshTokenFn = async (token, id) => {
@@ -70,15 +77,15 @@ const Login = () => {
       },
     })
 
-    setLs("authToken", data.refreshJwtAuthToken.authToken)
+    ls.set("authToken", data.refreshJwtAuthToken.authToken)
   }
 
   const onSubmit = async formData => {
     setFormState(formData)
     await login().catch(handleError)
-    const logguedIn = getLs("logguedIn")
-    const { refreshToken, clientMutationId } = logguedIn
-    refreshTokenFn(refreshToken, clientMutationId).catch(handleError)
+    // const logguedIn = ls("logguedIn")
+    // const { refreshToken, clientMutationId } = logguedIn
+    // refreshTokenFn(refreshToken, clientMutationId).catch(handleError)
     reset()
   }
 
