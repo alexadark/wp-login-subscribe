@@ -10,7 +10,7 @@ const Page = ({ data }) => {
     content,
     hiddenContent: { premium, proContent },
   } = data.wpPage
-  console.log("data", data)
+
   return (
     <Layout>
       <h1>{title}</h1>

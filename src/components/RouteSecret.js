@@ -1,13 +1,8 @@
 import React from "react"
-import { logguedIn } from "./utils"
+// import { logguedIn } from "./utils"
 
 const RouteSecret = () => {
-  const { user } = logguedIn
-  return (
-    <div>
-      <h1>Welcome {user.firstName}, this is your secret dashboard</h1>
-    </div>
-  )
+  return <div></div>
 }
 
 export default RouteSecret

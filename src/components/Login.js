@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid"
 import { useMutation } from "@apollo/react-hooks"
 import { gql } from "apollo-boost"
 import ls from "local-storage"
+import { handleError } from "../utils"
 
 const LOGIN = gql`
   mutation loginMutation($username: String!, $password: String!, $id: String!) {
@@ -18,21 +19,11 @@ const LOGIN = gql`
         name
         firstName
         jwtAuthExpiration
+        isJwtAuthSecretRevoked
         # premiumUser {
         #   premium
         # }
       }
-    }
-  }
-`
-
-const REFRESH_TOKEN = gql`
-  mutation refreshToken($id: String!, $token: String!) {
-    refreshJwtAuthToken(
-      input: { clientMutationId: $id, jwtRefreshToken: $token }
-    ) {
-      authToken
-      clientMutationId
     }
   }
 `
@@ -42,11 +33,6 @@ const Login = () => {
   const { username, password } = formState
   const { register, handleSubmit, reset } = useForm()
 
-  const handleError = err => {
-    console.log("oh noooo something went wrong!!!! 💩")
-    console.log(err)
-  }
-
   const [mutateLogin] = useMutation(LOGIN, {
     variables: {
       id: uuidv4(),
@@ -55,11 +41,8 @@ const Login = () => {
     },
   })
 
-  const [mutateRefreshToken] = useMutation(REFRESH_TOKEN)
-
   const login = async () => {
     const { data } = await mutateLogin()
-    console.log("data", data)
     const {
       login: { authToken, clientMutationId, refreshToken, user },
     } = data
@@ -69,23 +52,9 @@ const Login = () => {
     ls.set("user", user)
   }
 
-  const refreshTokenFn = async (token, id) => {
-    const { data } = await mutateRefreshToken({
-      variables: {
-        token,
-        id,
-      },
-    })
-
-    ls.set("authToken", data.refreshJwtAuthToken.authToken)
-  }
-
   const onSubmit = async formData => {
     setFormState(formData)
     await login().catch(handleError)
-    // const logguedIn = ls("logguedIn")
-    // const { refreshToken, clientMutationId } = logguedIn
-    // refreshTokenFn(refreshToken, clientMutationId).catch(handleError)
     reset()
   }
 
