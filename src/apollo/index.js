@@ -1,15 +1,24 @@
 import config from "../../config"
-import ApolloClient from "apollo-boost"
+
+import {
+  ApolloClient,
+  InMemoryCache,
+  ApolloProvider,
+  HttpLink,
+} from "@apollo/client"
 import fetch from "isomorphic-fetch"
 import React from "react"
-import { ApolloProvider } from "@apollo/react-hooks"
+
 import ls from "local-storage"
 
 const client = new ApolloClient({
-  uri: `${config.wordPressUrl}graphql`,
-  headers: {
-    authorization: ls("authToken"),
-  },
+  cache: new InMemoryCache(),
+  link: new HttpLink({
+    uri: `${config.wordPressUrl}graphql`,
+    headers: {
+      authorization: ls("authToken"),
+    },
+  }),
   fetch,
 })
 

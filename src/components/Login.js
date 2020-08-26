@@ -1,8 +1,8 @@
 import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
-import { useMutation } from "@apollo/react-hooks"
-import { gql } from "apollo-boost"
+import { useMutation, gql } from "@apollo/client"
+
 import ls from "local-storage"
 import { handleError } from "../utils"
 
