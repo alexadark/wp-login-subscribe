@@ -46,6 +46,7 @@ const CreatePage = () => {
     })
 
     ls.set("authToken", data.refreshJwtAuthToken.authToken)
+    console.log("token refreshed")
   }
 
   const [createPage] = useMutation(CREATE_PAGE, {
