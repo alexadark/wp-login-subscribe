@@ -1,8 +1,13 @@
 import React from "react"
-// import { logguedIn } from "./utils"
+import CreatePage from "./CreatePage"
 
 const RouteSecret = () => {
-  return <div></div>
+  return (
+    <>
+      <h1>Secret stuff</h1>
+      <CreatePage />
+    </>
+  )
 }
 
 export default RouteSecret

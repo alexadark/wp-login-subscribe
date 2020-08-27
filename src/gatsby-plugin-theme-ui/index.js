@@ -1,8 +1,21 @@
 // See other presets to try at https://theme-ui.com/packages/presets
-import { funk } from '@theme-ui/presets'
+import { deep } from "@theme-ui/presets"
 export default {
-  ...funk,
+  ...deep,
+  buttons: {
+    primary: {
+      color: "background",
+      bg: "tomato",
+      "&:hover": {
+        bg: "text",
+      },
+    },
+    secondary: {
+      color: "background",
+      bg: "secondary",
+    },
+  },
   styles: {
-    ...funk.styles,
+    ...deep.styles,
   },
 }

@@ -1,14 +1,19 @@
 import React from "react"
 import { navigate } from "gatsby"
-// import { logguedIn } from "./utils"
+import ls from "local-storage"
+import Login from "./Login"
+import SignUp from "./SignUp"
 
 const RouteLogin = () => {
-  // if (logguedIn) {
-  //   navigate("/dashboard/secret", { replace: true })
-  // }
+  const user = ls("user")
+  if (user) {
+    navigate("/dashboard/secret", { replace: true })
+  }
   return (
     <div>
       <h1>Login or Signup</h1>
+      <Login />
+      <SignUp />
     </div>
   )
 }

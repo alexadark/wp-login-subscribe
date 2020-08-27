@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
 import { useMutation, gql } from "@apollo/client"
+import { navigate } from "gatsby"
 
 import ls from "local-storage"
 import { handleError } from "../utils"
@@ -20,9 +21,9 @@ const LOGIN = gql`
         firstName
         jwtAuthExpiration
         isJwtAuthSecretRevoked
-        # premiumUser {
-        #   premium
-        # }
+        premiumUser {
+          premium
+        }
       }
     }
   }
@@ -55,6 +56,7 @@ const Login = () => {
   const onSubmit = async formData => {
     setFormState(formData)
     await login().catch(handleError)
+    navigate("/dashboard/secret", { replace: true })
     reset()
   }
 

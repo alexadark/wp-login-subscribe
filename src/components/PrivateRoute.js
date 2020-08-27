@@ -1,12 +1,13 @@
 import React from "react"
 import { navigate } from "gatsby"
-// import { logguedIn } from "./utils"
+import ls from "local-storage"
 
 const PrivateRoute = ({ component: Component, location, ...rest }) => {
-  // if (!logguedIn && location.pathName !== "/dashboard/login") {
-  //   navigate("/dashboard/login", { replace: true })
-  //   return null
-  // }
+  const user = ls("user")
+  if (!user && location.pathName !== "/dashboard/login") {
+    navigate("/dashboard/login", { replace: true })
+    return null
+  }
   return <Component {...rest} />
 }
 

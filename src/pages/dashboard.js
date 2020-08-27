@@ -19,7 +19,6 @@ const Dashboard = ({ location }) => {
         <PrivateRoute path="/dashboard/secret" component={RouteSecret} />
         <RouteLogin path="/dashboard/login" />
       </Router>
-      <h1>this is the dashboard</h1>
     </Layout>
   )
 }
