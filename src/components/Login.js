@@ -19,6 +19,7 @@ const LOGIN = gql`
         id
         name
         firstName
+        username
         jwtAuthExpiration
         isJwtAuthSecretRevoked
         premiumUser {

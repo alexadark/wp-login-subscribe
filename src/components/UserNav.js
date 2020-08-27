@@ -31,6 +31,7 @@ const UserNav = () => {
               Logout
             </Button>
             <Link to="/dashboard/secret">dashboard</Link>
+            <h4>Loggued in as {user.username}</h4>
           </>
         ) : (
           <>

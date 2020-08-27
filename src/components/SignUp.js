@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { useForm } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
 import { useMutation, gql } from "@apollo/client"
+import { handleError } from "../utils"
 
 const REGISTER_USER = gql`
   mutation registerUserMutation(
@@ -31,7 +32,7 @@ const REGISTER_USER = gql`
 
 const SignUp = () => {
   const [state, setState] = useState({})
-  const { register, handleSubmit } = useForm()
+  const { register, handleSubmit, reset } = useForm()
 
   const [registerUser] = useMutation(REGISTER_USER, {
     variables: {
@@ -49,12 +50,8 @@ const SignUp = () => {
 
   const onSubmit = async data => {
     setState(data)
-    registerUser()
-    try {
-      const { userData } = await registerUser()
-    } catch (error) {
-      setError(error)
-    }
+    await registerUser().catch(handleError)
+    reset()
   }
   return (
     <div>
