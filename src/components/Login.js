@@ -1,5 +1,5 @@
 import React, { useState } from "react"
-import { useForm } from "react-hook-form"
+import { useForm, appendErrors } from "react-hook-form"
 import { v4 as uuidv4 } from "uuid"
 import { useMutation, gql } from "@apollo/client"
 import { navigate } from "gatsby"
@@ -33,7 +33,7 @@ const LOGIN = gql`
 const Login = () => {
   const [formState, setFormState] = useState({})
   const { username, password } = formState
-  const { register, handleSubmit, reset } = useForm()
+  const { register, handleSubmit, reset, errors } = useForm()
 
   const [mutateLogin] = useMutation(LOGIN, {
     variables: {
@@ -71,6 +71,7 @@ const Login = () => {
           placeholder="username"
           ref={register({ required: true })}
         />
+        {errors.username && "username is required"}
 
         <input
           type="password"
@@ -78,6 +79,7 @@ const Login = () => {
           placeholder="password"
           ref={register({ required: true })}
         />
+        {errors.password && "password is required"}
 
         <input type="submit" value="submit" />
       </form>

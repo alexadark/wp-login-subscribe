@@ -45,9 +45,6 @@ const SignUp = () => {
     },
   })
 
-  const [userData, setUserData] = useState()
-  const [error, setError] = useState()
-
   const onSubmit = async data => {
     setState(data)
     await registerUser().catch(handleError)
