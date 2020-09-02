@@ -13,13 +13,27 @@ import React from "react"
 import { setContext } from "@apollo/client/link/context"
 
 import ls from "local-storage"
-import { TokenRefreshLink } from "apollo-link-token-refresh"
-import { handleError, isTokenAlive } from "../utils"
+
+import {
+  getTokenRefreshLink,
+  FetchNewAccessToken,
+} from "apollo-link-refresh-token"
+import jwtDecode from "jwt-decode"
 
 const authToken = ls("authToken")
 const refreshToken = ls("refreshToken")
 const user = ls("user")
-const isValidToken = isTokenAlive(user?.jwtAuthExpiration)
+
+const isTokenValid = authToken => {
+  const decodedToken = jwtDecode(authToken)
+  console.log("decoded", decodedToken)
+  if (!decodedToken) {
+    return false
+  }
+
+  const now = new Date()
+  return now.getTime() < decodedToken.exp * 1000
+}
 
 const httpLink = createHttpLink({
   uri: `${config.wordPressUrl}graphql`,
@@ -34,41 +48,6 @@ const authLink = setContext((_, { headers }) => {
     },
   }
 })
-
-// const refreshLink = new TokenRefreshLink({
-//   isTokenValidOrUndefined: () =>
-//     isValidToken || typeof authToken !== "string",
-//   fetchAccessToken: () => {
-//     return fetch(getEndpoint("getAccessTokenPath"), {
-//       method: "GET",
-//       headers: {
-//         Authorization: `Bearer ${getAccessToken()}`,
-//         "refresh-token": getRefreshToken(),
-//       },
-//     })
-//   },
-//   handleFetch: accessToken => {
-//     const accessTokenDecrypted = jwtDecode(accessToken)
-//     setAccessToken(accessToken)
-//     setExpiresIn(parseExp(accessTokenDecrypted.exp).toString())
-//   },
-//   handleResponse: (operation, accessTokenField) => response => {
-//     // here you can parse response, handle errors, prepare returned token to
-//     // further operations
-//     // returned object should be like this:
-//     // {
-//     //    access_token: 'token string here'
-//     // }
-//   },
-//   handleError: err => {
-//     // full control over handling token fetch Error
-//     console.warn("Your refresh token is invalid. Try to relogin")
-//     console.error(err)
-
-//     // your custom action here
-//     user.logout()
-//   },
-// })
 
 const client = new ApolloClient({
   link: ApolloLink.from([authLink, httpLink]),
